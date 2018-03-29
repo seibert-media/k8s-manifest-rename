@@ -70,7 +70,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	fmt.Printf("path should be %s\n", newpath)
+	fmt.Printf("path of %s should be %s\n", path, newpath)
 }
 
 func buildName(kind Kind, name Name) string {
