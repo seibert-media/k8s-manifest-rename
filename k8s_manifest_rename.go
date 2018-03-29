@@ -1,14 +1,11 @@
-package k8s_manifest_rename
+package main
 
 import (
 	"flag"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
-
 	"runtime"
-
 	io_util "github.com/bborbe/io/util"
 	"github.com/golang/glog"
 	"gopkg.in/yaml.v2"
@@ -17,14 +14,19 @@ import (
 )
 
 const (
-	parameterPath  = "path"
-	parameterWrite = "write"
+	parameterPath     = "path"
+	parameterWrite    = "write"
+	parameterValidate = "validate"
 )
 
 var (
-	pathPtr  = flag.String(parameterPath, "", "path")
-	writePtr = flag.Bool(parameterWrite, false, "write")
+	pathPtr     = flag.String(parameterPath, "", "path")
+	writePtr    = flag.Bool(parameterWrite, false, "write")
+	validatePtr = flag.Bool(parameterValidate, false, "validate content is already formated")
 )
+
+type Kind string
+type Name string
 
 func main() {
 	defer glog.Flush()
@@ -32,51 +34,43 @@ func main() {
 	flag.Parse()
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	writer := os.Stdout
-
-	err := do(writer, *pathPtr, *writePtr)
+	if len(*pathPtr) == 0 {
+		fmt.Fprintf(os.Stderr, "parameter %s missing\n", parameterPath)
+		os.Exit(1)
+	}
+	path, err := io_util.NormalizePath(*pathPtr)
 	if err != nil {
-		glog.Exitf("format %v failed: %v", *pathPtr, err)
-	}
-	glog.V(2).Infof("format %v success", *pathPtr)
-}
-
-type Kind string
-type Name string
-
-func do(writer io.Writer, path string, write bool) error {
-	var err error
-	glog.V(2).Infof("format %s and write %v", path, write)
-	if len(path) == 0 {
-		fmt.Fprintf(writer, "parameter %s missing\n", parameterPath)
-		return nil
-	}
-	if path, err = io_util.NormalizePath(path); err != nil {
-		glog.Warningf("normalize path: %s failed: %v", path, err)
-		return err
+		glog.Exitf("normalize path: %s failed: %v", path, err)
 	}
 	source, err := ioutil.ReadFile(path)
 	if err != nil {
-		glog.Warningf("read file %s failed: %v", path, err)
-		return err
+		glog.Exitf("read file %s failed: %v", path, err)
 	}
 	var data struct {
-		Kind     Kind `yaml:"kind"`
+		Kind Kind `yaml:"kind"`
 		Metadata struct {
 			Name Name `yaml:"name"`
 		} `yaml:"metadata"`
 	}
 	if err = yaml.Unmarshal(source, &data); err != nil {
-		glog.Warningf("unmarshal %s failed: %v", path, err)
-		return err
+		glog.Exitf("unmarshal %s failed: %v", path, err)
 	}
 	newpath := filepath.Join(filepath.Dir(path), buildName(data.Kind, data.Metadata.Name))
-	if path == newpath {
-		glog.V(2).Infof("skip rename")
-		return nil
+	if *writePtr {
+		if path != newpath {
+			if err := os.Rename(path, newpath); err != nil {
+				glog.Exitf("rename failed: %v", err)
+			}
+		}
+		return
 	}
-	glog.V(1).Infof("rename file from %s to %s", path, newpath)
-	return os.Rename(path, newpath)
+	if *validatePtr {
+		if path != newpath {
+			fmt.Fprintf(os.Stderr, "path invalid! %s != %s missing\n", path, newpath)
+			os.Exit(1)
+		}
+	}
+	fmt.Printf("path should be %s", newpath)
 }
 
 func buildName(kind Kind, name Name) string {
