@@ -1,7 +1,0 @@
-package: github.com/bborbe/k8s_manifest_rename
-import:
-- package: github.com/bborbe/io
-  subpackages:
-  - util
-- package: github.com/golang/glog
-- package: gopkg.in/yaml.v2
