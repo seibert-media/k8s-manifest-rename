@@ -69,6 +69,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "path invalid! %s != %s missing\n", path, newpath)
 			os.Exit(1)
 		}
+		return
 	}
 	fmt.Printf("path of %s should be %s\n", path, newpath)
 }
