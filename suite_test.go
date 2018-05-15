@@ -1,14 +1,12 @@
 package main_test
 
 import (
-	"testing"
-
-	"os/exec"
-	"time"
-
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path"
+	"testing"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
