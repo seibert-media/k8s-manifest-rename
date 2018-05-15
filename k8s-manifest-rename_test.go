@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestBuildName(t *testing.T) {
 	name := buildName("deployment", "hello")

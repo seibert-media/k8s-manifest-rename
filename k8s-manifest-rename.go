@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime"
+	"strings"
+
 	io_util "github.com/bborbe/io/util"
 	"github.com/golang/glog"
 	"gopkg.in/yaml.v2"
-	"path/filepath"
-	"strings"
 )
 
 const (
@@ -47,7 +48,7 @@ func main() {
 		glog.Exitf("read file %s failed: %v", path, err)
 	}
 	var data struct {
-		Kind Kind `yaml:"kind"`
+		Kind     Kind `yaml:"kind"`
 		Metadata struct {
 			Name Name `yaml:"name"`
 		} `yaml:"metadata"`
