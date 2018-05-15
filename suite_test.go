@@ -13,12 +13,12 @@ import (
 	"github.com/onsi/gomega/gexec"
 )
 
-var pathToServerBinary string
+var pathToBinary string
 var session *gexec.Session
 
 var _ = BeforeSuite(func() {
 	var err error
-	pathToServerBinary, err = gexec.Build("github.com/bborbe/k8s-manifest-rename")
+	pathToBinary, err = gexec.Build("github.com/bborbe/k8s-manifest-rename")
 	Expect(err).NotTo(HaveOccurred())
 })
 
@@ -50,7 +50,7 @@ var _ = Describe("K8s Rename Tool", func() {
 		}
 	})
 	It("exit with exitcode 1", func() {
-		session, err = gexec.Start(exec.Command(pathToServerBinary), GinkgoWriter, GinkgoWriter)
+		session, err = gexec.Start(exec.Command(pathToBinary), GinkgoWriter, GinkgoWriter)
 		Expect(err).To(BeNil())
 		session.Wait(100 * time.Millisecond)
 		Expect(session.ExitCode()).To(Equal(1))
@@ -68,13 +68,13 @@ var _ = Describe("K8s Rename Tool", func() {
 			Expect(err).To(BeNil())
 		})
 		It("exit with exitcode 0", func() {
-			session, err = gexec.Start(exec.Command(pathToServerBinary, args...), GinkgoWriter, GinkgoWriter)
+			session, err = gexec.Start(exec.Command(pathToBinary, args...), GinkgoWriter, GinkgoWriter)
 			Expect(err).To(BeNil())
 			session.Wait(100 * time.Millisecond)
 			Expect(session.ExitCode()).To(Equal(0))
 		})
 		It("file still exists", func() {
-			session, err = gexec.Start(exec.Command(pathToServerBinary, args...), GinkgoWriter, GinkgoWriter)
+			session, err = gexec.Start(exec.Command(pathToBinary, args...), GinkgoWriter, GinkgoWriter)
 			Expect(err).To(BeNil())
 			session.Wait(100 * time.Millisecond)
 			_, err := os.Stat(file)
@@ -94,20 +94,20 @@ var _ = Describe("K8s Rename Tool", func() {
 			Expect(err).To(BeNil())
 		})
 		It("exit with exitcode 0", func() {
-			session, err = gexec.Start(exec.Command(pathToServerBinary, args...), GinkgoWriter, GinkgoWriter)
+			session, err = gexec.Start(exec.Command(pathToBinary, args...), GinkgoWriter, GinkgoWriter)
 			Expect(err).To(BeNil())
 			session.Wait(100 * time.Millisecond)
 			Expect(session.ExitCode()).To(Equal(0))
 		})
 		It("orginal file does not exists anymore", func() {
-			session, err = gexec.Start(exec.Command(pathToServerBinary, args...), GinkgoWriter, GinkgoWriter)
+			session, err = gexec.Start(exec.Command(pathToBinary, args...), GinkgoWriter, GinkgoWriter)
 			Expect(err).To(BeNil())
 			session.Wait(100 * time.Millisecond)
 			_, err = os.Stat(file)
 			Expect(err).NotTo(BeNil())
 		})
 		It("file exists under expected name", func() {
-			session, err = gexec.Start(exec.Command(pathToServerBinary, args...), GinkgoWriter, GinkgoWriter)
+			session, err = gexec.Start(exec.Command(pathToBinary, args...), GinkgoWriter, GinkgoWriter)
 			Expect(err).To(BeNil())
 			session.Wait(100 * time.Millisecond)
 			_, err = os.Stat(path.Join(tmpdir, expectName))
